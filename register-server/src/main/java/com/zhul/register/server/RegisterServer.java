@@ -13,6 +13,8 @@ public class RegisterServer {
 
     public static void main(String[] args) throws Exception {
 
+//        System.out.println(Thread.currentThread().getName()+"线程的线程组是："+Thread.currentThread().getThreadGroup());
+
         RegisterServerController controller = new RegisterServerController();
 
         String serviceInstanceId = UUID.randomUUID().toString().replace("-", "");
