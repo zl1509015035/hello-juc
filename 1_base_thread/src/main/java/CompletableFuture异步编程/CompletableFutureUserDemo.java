@@ -26,7 +26,8 @@ public class CompletableFutureUserDemo {
 
                 System.out.println("-----1秒钟后出结果:" + result);
 
-                if(result>5){
+                //手动制作异常
+                if(result>1){
                     int i=10/0;
                 }
                 return result;
