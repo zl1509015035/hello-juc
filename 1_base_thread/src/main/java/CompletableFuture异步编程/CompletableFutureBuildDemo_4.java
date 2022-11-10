@@ -32,6 +32,7 @@ public class CompletableFutureBuildDemo_4 {
         },threadPool);
 
         System.out.println(completableFuture.get());
+        System.out.println(completableFuture.join());
 
         threadPool.shutdown();
 

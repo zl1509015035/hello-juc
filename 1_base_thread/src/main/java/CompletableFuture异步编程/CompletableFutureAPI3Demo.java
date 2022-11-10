@@ -1,15 +1,26 @@
 package CompletableFuture异步编程;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author zhul
  * @create 2022/10/20 21:04
- *
- *
- * supply 出现异常会直接中断
- * handle 可以带着exception继续往下 后续操作可对exception进行判断操作
- *
+ * <p>
+ * 对计算结果进行消费
+ * <p>
+ * thenRun：
+ * thenRun(Runnable runnable)
+ * 任务A执行完执行B，B不需要A的结果
+ * thenAccept
+ * thenAccept(Consumer action)
+ * 任务A执行完执行B，B需要A的结果，但是任务B 无返回值
+ * thenApply
+ * thenApply(Function fn)
+ * 任务A执行完执行B，B需要A的结果，同时任务B有返回值
+ * <p>
  * exceptionally 可捕获异常
  *
  */
@@ -17,41 +28,36 @@ public class CompletableFutureAPI3Demo {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-         ExecutorService threadPool = Executors.newFixedThreadPool(3);
-
-
-         CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(() -> {
-            //暂停几秒钟线程
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            System.out.println("111");
-            return 1;
-        }, threadPool).handle((f, e) -> {
-            int i = 10 / 0;
-            System.out.println("222");
-            return f + 2;
-        }).handle((f, e) -> {
-            System.out.println("333");
-            return f + 3;
-        }).whenComplete((v, e) -> {
-            if (e == null) {
-                System.out.println("----计算结果: " + v);
-            }
-        }).exceptionally(e -> {
-            throw new RuntimeException("细狗异常");
-        });
-
-        System.out.println(completableFuture.get());
-
-        System.out.println(Thread.currentThread().getName()+"----主线程先去忙其他事");
-
-//        try{TimeUnit.SECONDS.sleep(2);}catch (InterruptedException e){e.printStackTrace();}
-
+        ExecutorService threadPool = Executors.newFixedThreadPool(3);
         threadPool.shutdown();
+
+        CompletableFuture.supplyAsync(() -> {
+            return 1;
+        }).thenApply(f -> {
+            return f + 2;
+        }).thenApply(f -> {
+            return f + 3;
+        }).thenAccept(System.out::println);
+
+        /*
+        * thenRun：
+        *   thenRun(Runnable runnable)
+        *   任务A执行完执行B，B不需要A的结果
+        */
+        System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenRun(() -> {}).join());
+        /*
+         * thenAccept
+         * thenAccept(Consumer action)
+         * 任务A执行完执行B，B需要A的结果，但是任务B 无返回值
+         */
+        System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenAccept(System.out::println).join());
+        /*
+         * thenApply
+         * thenApply(Function fn)
+         * 任务A执行完执行B，B需要A的结果，同时任务B有返回值
+        */
+        System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenApply(r -> r + "resultB").join());
+
 
     }
 }
